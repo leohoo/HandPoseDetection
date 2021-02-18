@@ -11,7 +11,7 @@ import SwiftUI
 struct Hand_DetectionApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SimpleVideoCaptureView(presenter: SimpleVideoCapturePresenter())
         }
     }
 }
