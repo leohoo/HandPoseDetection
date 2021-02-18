@@ -64,31 +64,6 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
         captureSession.stopRunning()
     }
 
-    func takePhoto() {
-        showPhoto = true
-    }
-
-    private func exifOrientationForDeviceOrientation(_ deviceOrientation: UIDeviceOrientation) -> UIImage.Orientation {
-
-        switch deviceOrientation {
-        case .portraitUpsideDown:
-            return .rightMirrored
-
-        case .landscapeLeft:
-            return .downMirrored
-
-        case .landscapeRight:
-            return .upMirrored
-
-        default:
-            return .leftMirrored
-        }
-    }
-
-    private func exifOrientationForCurrentDeviceOrientation() -> UIImage.Orientation {
-        return exifOrientationForDeviceOrientation(UIDevice.current.orientation)
-    }
-
     func pointLayer(_ p: CGPoint, in rect: CGRect) -> CALayer {
         let SIZE = CGFloat(5.0)
         let w = rect.width
@@ -104,7 +79,7 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
         layer.fillColor = nil // No fill to show boxed object
         layer.shadowOpacity = 0
         layer.shadowRadius = 0
-        layer.borderWidth = 2
+        layer.borderWidth = 1
 
         // Vary the line color according to input.
         layer.borderColor = UIColor.red.cgColor
@@ -114,8 +89,37 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
         layer.frame = box
         layer.masksToBounds = true
 
-        // Transform the layer to have same coordinate system as the imageView underneath it.
-//        layer.transform = CATransform3DMakeScale(1, -1, 1)
+        return layer
+    }
+
+    func lineLayer(_ pnts: [CGPoint], in rect: CGRect) -> CALayer {
+        let w = rect.width
+        let h = rect.height
+
+        let layer = CAShapeLayer()
+
+        // Configure layer's appearance.
+        layer.fillColor = nil // No fill to show boxed object
+        layer.shadowOpacity = 0
+        layer.shadowRadius = 0
+
+        layer.strokeColor = UIColor.blue.cgColor
+
+        let path = UIBezierPath()
+        var first = true
+        for p in pnts {
+            let x = p.y * w + rect.origin.x
+            let y = p.x * h + rect.origin.y
+
+            if first {
+                path.move(to: CGPoint(x: x, y: y))
+                first = false
+            } else {
+                path.addLine(to: CGPoint(x: x, y: y))
+            }
+        }
+
+        layer.path = path.cgPath
 
         return layer
     }
@@ -165,6 +169,9 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
 
                 pathLayer?.addSublayer(rect)
             }
+
+            let line = lineLayer(f, in: drawingLayer.frame)
+            pathLayer?.addSublayer(line)
         }
         CATransaction.commit()
 
@@ -209,8 +216,7 @@ class HandDetector {
     lazy var handPoseRequest = VNDetectHumanHandPoseRequest(completionHandler: self.handleHandPoses)
 
     private func handleHandPoses(request: VNRequest?, error: Error?) {
-        if let nsError = error as NSError? {
-//            self.presentAlert("Hand Pose Detection Error", error: nsError)
+        if (error as NSError?) != nil {
             print("error")
             self.callback([])
 
@@ -228,19 +234,15 @@ class HandDetector {
             for r in results {
                 let group = r.availableJointsGroupNames
                 for g in group {
-                    if g != VNHumanHandPoseObservation.JointsGroupName.all {
+                    if g == .all {
                         continue
                     }
 
-                    var array = [CGPoint]()
                     if let points = try? r.recognizedPoints(g) {
                         var values = [VNRecognizedPoint]()
-                        for p in points {
-                            values.append(p.value)
-                            print(p.value)
-                            array.append(p.value.location)
-                        }
-                        detectedFeatures.append(array)
+                        let sorted = HandUtil.sort(pnts: points)
+
+                        detectedFeatures.append(sorted)
                         print("\(g.rawValue): \(values.count) points.")
                     }
                 }
@@ -253,7 +255,7 @@ class HandDetector {
 
     fileprivate func performVisionRequest(image: CGImage) {
 
-        var requests: [VNRequest] = [handPoseRequest]
+        let requests: [VNRequest] = [handPoseRequest]
 
         // Create a request handler.
         let imageRequestHandler = VNImageRequestHandler(cgImage: image,

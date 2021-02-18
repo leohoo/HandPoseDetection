@@ -13,6 +13,7 @@
 		B60017E625D22C6200C1752A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B60017E525D22C6200C1752A /* Preview Assets.xcassets */; };
 		B6662AB025D2334E001DF1D2 /* SimpleVideoCaptureInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6662AAF25D2334E001DF1D2 /* SimpleVideoCaptureInteractor.swift */; };
 		B6662AB325D27AB1001DF1D2 /* FramerateCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6662AB225D27AB1001DF1D2 /* FramerateCounter.swift */; };
+		B6759FA425DE1E34002413E8 /* HandUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6759FA325DE1E34002413E8 /* HandUtil.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		B60017E725D22C6200C1752A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B6662AAF25D2334E001DF1D2 /* SimpleVideoCaptureInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleVideoCaptureInteractor.swift; sourceTree = "<group>"; };
 		B6662AB225D27AB1001DF1D2 /* FramerateCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FramerateCounter.swift; sourceTree = "<group>"; };
+		B6759FA325DE1E34002413E8 /* HandUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandUtil.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 				B60017E725D22C6200C1752A /* Info.plist */,
 				B60017E425D22C6200C1752A /* Preview Content */,
 				B6662AB225D27AB1001DF1D2 /* FramerateCounter.swift */,
+				B6759FA325DE1E34002413E8 /* HandUtil.swift */,
 			);
 			path = "Hand Detection";
 			sourceTree = "<group>";
@@ -148,6 +151,7 @@
 				B60017E125D22C4800C1752A /* ContentView.swift in Sources */,
 				B60017DF25D22C4800C1752A /* Hand_DetectionApp.swift in Sources */,
 				B6662AB025D2334E001DF1D2 /* SimpleVideoCaptureInteractor.swift in Sources */,
+				B6759FA425DE1E34002413E8 /* HandUtil.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
