@@ -124,6 +124,46 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
         return layer
     }
 
+    func circleLayer(_ pnts: [CGPoint], in rect: CGRect) -> CALayer {
+        let w = rect.width
+        let h = rect.height
+
+        var points = [Float]()
+
+        for p in pnts {
+            let x = p.y * w + rect.origin.x
+            let y = p.x * h + rect.origin.y
+            points.append(Float(x))
+            points.append(Float(y))
+        }
+
+        var r: Float = 0
+        var cx: Float = 0, cy: Float = 0
+
+        let n = Int32(points.count/2)
+        print(points)
+        points.withUnsafeBufferPointer { (data: UnsafeBufferPointer<Float>) in
+            let ok = CircleFit(n, data.baseAddress, &cx, &cy, &r)
+            print("CircleFit \(ok)")
+        }
+
+        let layer = CAShapeLayer()
+
+        // Configure layer's appearance.
+        layer.fillColor = nil // No fill to show boxed object
+        layer.shadowOpacity = 0
+        layer.shadowRadius = 0
+
+        layer.strokeColor = UIColor.blue.cgColor
+
+        let origin = CGPoint(x: Int(cx-r), y: Int(cy-r))
+        let rect = CGRect(origin: origin, size: CGSize(width: 2*Int(r), height: 2*Int(r)))
+        layer.path = UIBezierPath(roundedRect: rect, cornerRadius: CGFloat(r)).cgPath
+        layer.position = origin
+
+        return layer
+    }
+
     func onResult(features:[[CGPoint]]) {
         self.requested = false
 
@@ -163,18 +203,22 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
         pathLayer?.backgroundColor = UIColor.green.cgColor
 
         CATransaction.begin()
+        var samples = [CGPoint]()
         for f in features {
             for p in f {
                 let rect = pointLayer(p, in: drawingLayer.frame)
-
                 pathLayer?.addSublayer(rect)
             }
 
             let line = lineLayer(f, in: drawingLayer.frame)
             pathLayer?.addSublayer(line)
+            samples.append(f.first!)
         }
-        CATransaction.commit()
 
+        let circle = circleLayer(samples, in: drawingLayer.frame)
+        pathLayer?.addSublayer(circle)  // TODO calculate palm circle
+
+        CATransaction.commit()
     }
 
     var fr = FramerateCounter()
@@ -186,11 +230,11 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
 extension SimpleVideoCaptureInteractor: AVCaptureVideoDataOutputSampleBufferDelegate {
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-//        print("framerate: \(fr.addFrame())")
 
         if requested {
             return
         }
+        print("framerate: \(fr.addFrame())")
 
         if let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
             let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
@@ -235,18 +279,20 @@ class HandDetector {
                 let group = r.availableJointsGroupNames
                 for g in group {
                     if g == .all {
+                        if let wrist = try? r.recognizedPoint(.wrist) {
+                            print("wrist: \(wrist.location)")
+                            detectedFeatures.append([wrist.location])
+                        }
                         continue
                     }
 
                     if let points = try? r.recognizedPoints(g) {
-                        var values = [VNRecognizedPoint]()
                         let sorted = HandUtil.sort(pnts: points)
 
                         detectedFeatures.append(sorted)
-                        print("\(g.rawValue): \(values.count) points.")
+                        print("\(g.rawValue): \(sorted.count) points.")
                     }
                 }
-
             }
 
             self.callback(detectedFeatures)

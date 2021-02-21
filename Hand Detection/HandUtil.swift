@@ -15,6 +15,7 @@ class HandUtil {
          .middleTip, .middleDIP, .middlePIP, .middleMCP,
          .ringTip, .ringDIP, .ringPIP, .ringMCP,
          .littleTip, .littleDIP, .littlePIP, .littleMCP]
+
     static func sort(pnts: [VNHumanHandPoseObservation.JointName : VNRecognizedPoint]) -> [CGPoint] {
         var sorted = [CGPoint]()
 
@@ -24,7 +25,7 @@ class HandUtil {
             }
         }
 
-        return sorted
+        return sorted.reversed()
     }
 
 }
