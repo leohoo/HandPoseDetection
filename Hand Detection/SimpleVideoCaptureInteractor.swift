@@ -54,14 +54,20 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
          captureSession.commitConfiguration()
      }
 
-    func startSettion() {
+    let savedBrightness = UIScreen.main.brightness
+
+    func startSession() {
         if captureSession.isRunning { return }
         captureSession.startRunning()
+        UIScreen.main.brightness = 1.0
+        UIApplication.shared.isIdleTimerDisabled = true
     }
 
-    func stopSettion() {
+    func stopSession() {
         if !captureSession.isRunning { return }
         captureSession.stopRunning()
+        UIScreen.main.brightness = savedBrightness
+        UIApplication.shared.isIdleTimerDisabled = false
     }
 
     func pointLayer(_ p: CGPoint, in rect: CGRect) -> CALayer {
@@ -155,6 +161,7 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
         layer.shadowRadius = 0
 
         layer.strokeColor = UIColor.red.cgColor
+        layer.lineWidth = 2
 
         let origin = CGPoint(x: Int(cx-r), y: Int(cy-r))
         let rect = CGRect(origin: origin, size: CGSize(width: 2*Int(r), height: 2*Int(r)))
@@ -195,7 +202,7 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
         drawingLayer.bounds = CGRect(x: xLayer, y: yLayer, width: imageWidth, height: imageHeight)
         drawingLayer.anchorPoint = CGPoint.zero
         drawingLayer.position = CGPoint(x: xLayer, y: yLayer)
-        drawingLayer.opacity = 0.5
+        drawingLayer.opacity = 0.3
         pathLayer = drawingLayer
 
         previewLayer?.addSublayer(pathLayer!)

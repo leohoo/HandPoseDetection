@@ -75,12 +75,12 @@ class SimpleVideoCapturePresenter: ObservableObject {
     func apply(inputs: Inputs) {
         switch inputs {
             case .onAppear:
-                interactor.startSettion()
+                interactor.startSession()
             break
             case .tappedCameraButton:
             break
             case .onDisappear:
-              interactor.stopSettion()
+              interactor.stopSession()
         }
     }
 
