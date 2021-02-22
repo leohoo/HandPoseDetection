@@ -154,12 +154,11 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
         layer.shadowOpacity = 0
         layer.shadowRadius = 0
 
-        layer.strokeColor = UIColor.blue.cgColor
+        layer.strokeColor = UIColor.red.cgColor
 
         let origin = CGPoint(x: Int(cx-r), y: Int(cy-r))
         let rect = CGRect(origin: origin, size: CGSize(width: 2*Int(r), height: 2*Int(r)))
         layer.path = UIBezierPath(roundedRect: rect, cornerRadius: CGFloat(r)).cgPath
-        layer.position = origin
 
         return layer
     }
@@ -215,8 +214,9 @@ final class SimpleVideoCaptureInteractor: NSObject, ObservableObject {
             samples.append(f.first!)
         }
 
+        // calculate palm circle
         let circle = circleLayer(samples, in: drawingLayer.frame)
-        pathLayer?.addSublayer(circle)  // TODO calculate palm circle
+        pathLayer?.addSublayer(circle)
 
         CATransaction.commit()
     }
